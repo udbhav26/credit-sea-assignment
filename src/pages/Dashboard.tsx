@@ -1,174 +1,106 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLoan } from '@/contexts/LoanContext';
-import { 
-  Users, 
-  UserRound, 
-  DollarSign, 
-  ArrowUpRight,
-  PiggyBank,
-  Repeat,
-  Building2
-} from 'lucide-react';
 import { StatCard } from '@/components/dashboard/StatCard';
-import { LoanTable } from '@/components/dashboard/LoanTable';
 import { LoanChart } from '@/components/dashboard/LoanChart';
 import { RecoveryRateCard } from '@/components/dashboard/RecoveryRateCard';
-import { useNavigate } from 'react-router-dom';
+import { LoanTable } from '@/components/dashboard/LoanTable';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Ban, CheckCircle, PieChart } from 'lucide-react';
+import { toast } from 'sonner';
+
+// Mock data for demonstration
+const loanData = {
+  total: 2500000,
+  approved: 1750000,
+  rejected: 250000,
+  pending: 500000,
+  recovery: 85,
+};
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
-  const { 
-    loans, 
-    dashboardStats, 
-    chartData, 
-    verifyLoan, 
-    approveLoan 
-  } = useLoan();
-  const [role, setRole] = useState<string>('user');
   const navigate = useNavigate();
-  
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if not logged in
   useEffect(() => {
-    if (currentUser) {
-      setRole(currentUser.role);
-    } else {
+    if (!currentUser) {
       navigate('/login');
     }
   }, [currentUser, navigate]);
-  
-  // Format numbers with commas
-  const formatNumber = (num: number) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-  
-  const handleVerifyLoan = async (loanId: string, isApproved: boolean) => {
-    try {
-      await verifyLoan(loanId, isApproved);
-      toast.success(`Loan ${isApproved ? 'verified' : 'rejected'} successfully`);
-    } catch (error) {
-      console.error('Error verifying loan:', error);
-      toast.error('Failed to process loan verification');
-    }
-  };
-  
-  const handleApproveLoan = async (loanId: string, isApproved: boolean) => {
-    try {
-      await approveLoan(loanId, isApproved);
-      toast.success(`Loan ${isApproved ? 'approved' : 'rejected'} successfully`);
-    } catch (error) {
-      console.error('Error approving loan:', error);
-      toast.error('Failed to process loan approval');
-    }
+
+  // Mock functions for loan actions
+  const handleApprove = (loanId: string) => {
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success(`Loan #${loanId} has been approved`);
+    }, 1000);
   };
 
-  // Conditional rendering if user not logged in
-  if (!currentUser) {
-    return null; // Will redirect to login from useEffect
-  }
-  
+  const handleReject = (loanId: string) => {
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.error(`Loan #${loanId} has been rejected`);
+    }, 1000);
+  };
+
+  // Different dashboard based on role
+  if (!currentUser) return null;
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        {currentUser.role === 'user' && (
+          <Button 
+            onClick={() => navigate('/apply')}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Apply for Loan <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        )}
+      </div>
       
-      {/* Stats Row 1 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid md:grid-cols-3 gap-4">
         <StatCard 
-          icon={<Users size={24} />}
-          title="ACTIVE USERS"
-          value={formatNumber(dashboardStats.activeUsers)}
+          title="Total Loan Amount" 
+          value={`₦${loanData.total.toLocaleString()}`}
+          icon={PieChart}
+          color="blue"
         />
         <StatCard 
-          icon={<UserRound size={24} />}
-          title="BORROWERS"
-          value={formatNumber(dashboardStats.borrowers)}
+          title="Approved Loans" 
+          value={`₦${loanData.approved.toLocaleString()}`}
+          icon={CheckCircle}
+          color="green"
         />
         <StatCard 
-          icon={<DollarSign size={24} />}
-          title="CASH DISBURSED"
-          value={formatNumber(dashboardStats.cashDisbursed)}
-        />
-        <StatCard 
-          icon={<ArrowUpRight size={24} />}
-          title="CASH RECEIVED"
-          value={formatNumber(dashboardStats.cashReceived)}
+          title="Rejected Loans" 
+          value={`₦${loanData.rejected.toLocaleString()}`}
+          icon={Ban}
+          color="red"
         />
       </div>
       
-      {/* Stats Row 2 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard 
-          icon={<PiggyBank size={24} />}
-          title="SAVINGS"
-          value={formatNumber(dashboardStats.savings)}
-        />
-        <StatCard 
-          icon={<Repeat size={24} />}
-          title="REPAID LOANS"
-          value={formatNumber(dashboardStats.repaidLoans)}
-        />
-        <StatCard 
-          icon={<Building2 size={24} />}
-          title="OTHER ACCOUNTS"
-          value={formatNumber(dashboardStats.otherAccounts)}
-        />
-        <StatCard 
-          icon={<DollarSign size={24} />}
-          title="LOANS"
-          value={formatNumber(dashboardStats.totalLoans)}
-        />
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="col-span-2">
+          <LoanChart />
+        </div>
+        <RecoveryRateCard rate={loanData.recovery} />
       </div>
-      
-      {/* Loans Table */}
-      <div className="mb-6">
+
+      <div>
         <LoanTable 
-          loans={loans} 
-          onVerify={role === 'verifier' || role === 'admin' ? handleVerifyLoan : undefined}
-          onApprove={role === 'admin' ? handleApproveLoan : undefined}
-        />
-      </div>
-      
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <LoanChart 
-          title="Loans Released Monthly" 
-          data={chartData.loansReleasedMonthly} 
-          color="#4CAF50" 
-          type="area" 
-        />
-        <LoanChart 
-          title="Total Outstanding Open Loans - Monthly" 
-          data={chartData.outstandingLoansMonthly} 
-          color="#2196F3" 
-          type="bar" 
-          barColor="#2196F3"
-        />
-      </div>
-      
-      {/* Recovery Rate Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <RecoveryRateCard 
-          title="Rate of Recovery (Open, Fully Paid, Default Loans)" 
-          rate={chartData.recoveryRateClosed} 
-          description="Percentage of the loan amount that is paid for all loans over time" 
-          className="bg-orange-500" 
-        />
-        <RecoveryRateCard 
-          title="Rate of Recovery (Open Loans)" 
-          rate={chartData.recoveryRateOpen} 
-          description="Percentage of the due amount that is paid for open loans until today" 
-          className="bg-green-500" 
-        />
-      </div>
-      
-      {/* Repayments Chart */}
-      <div className="mb-6">
-        <LoanChart 
-          title="Number of Repayments Collected - Monthly" 
-          data={chartData.repaymentsCollectedMonthly} 
-          color="#F44336" 
-          type="bar" 
-          barColor="#F44336"
+          onApprove={handleApprove} 
+          onReject={handleReject} 
+          isLoading={isLoading}
+          userRole={currentUser.role}
         />
       </div>
     </div>
