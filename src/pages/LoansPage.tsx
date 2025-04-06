@@ -5,8 +5,9 @@ import { useLoan, LoanApplication } from '@/contexts/LoanContext';
 import { LoanTable } from '@/components/dashboard/LoanTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 const LoansPage = () => {
   const { currentUser } = useAuth();
@@ -21,9 +22,13 @@ const LoansPage = () => {
   
   const [displayLoans, setDisplayLoans] = useState<LoanApplication[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
     
     let loansToDisplay: LoanApplication[];
     
@@ -39,21 +44,25 @@ const LoansPage = () => {
     }
     
     setDisplayLoans(loansToDisplay);
-  }, [currentUser, loans, getUserLoans, getPendingLoans, getVerifiedLoans]);
+  }, [currentUser, loans, getUserLoans, getPendingLoans, getVerifiedLoans, navigate]);
   
   const handleVerifyLoan = async (loanId: string, isApproved: boolean) => {
     try {
       await verifyLoan(loanId, isApproved);
+      toast.success(`Loan ${isApproved ? 'verified' : 'rejected'} successfully`);
     } catch (error) {
       console.error('Error verifying loan:', error);
+      toast.error('Failed to verify loan');
     }
   };
   
   const handleApproveLoan = async (loanId: string, isApproved: boolean) => {
     try {
       await approveLoan(loanId, isApproved);
+      toast.success(`Loan ${isApproved ? 'approved' : 'rejected'} successfully`);
     } catch (error) {
       console.error('Error approving loan:', error);
+      toast.error('Failed to approve loan');
     }
   };
   
@@ -67,6 +76,11 @@ const LoansPage = () => {
     loan.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
     loan.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  // Redirect if not logged in
+  if (!currentUser) {
+    return null; // Will redirect from useEffect
+  }
   
   return (
     <div>

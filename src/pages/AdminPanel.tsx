@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { PlusCircle, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -28,9 +29,10 @@ type FormValues = z.infer<typeof formSchema>;
 const AdminPanel = () => {
   const { currentUser, addAdmin, removeAdmin } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   
-  // Mock admin list for demo
-  const [admins] = useState([
+  // In a real app, this would come from API
+  const [admins, setAdmins] = useState([
     {
       id: '1',
       name: 'Admin User',
@@ -51,6 +53,16 @@ const AdminPanel = () => {
     },
   ]);
 
+  useEffect(() => {
+    // Redirect if not admin
+    if (currentUser && currentUser.role !== 'admin') {
+      toast.error('Access denied: Only administrators can access this page');
+      navigate('/');
+    } else if (!currentUser) {
+      navigate('/login');
+    }
+  }, [currentUser, navigate]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -69,10 +81,20 @@ const AdminPanel = () => {
     setIsSubmitting(true);
     try {
       await addAdmin(values.name, values.email, values.password);
+      
+      // Update admins list
+      setAdmins([...admins, {
+        id: (admins.length + 1).toString(),
+        name: values.name,
+        email: values.email,
+        avatar: `https://ui-avatars.com/api/?name=${values.name.replace(' ', '+')}&background=0D6832&color=fff`,
+      }]);
+      
       form.reset();
       toast.success(`Admin ${values.name} added successfully!`);
     } catch (error) {
       console.error('Error adding admin:', error);
+      toast.error('Failed to add admin');
     } finally {
       setIsSubmitting(false);
     }
@@ -91,22 +113,20 @@ const AdminPanel = () => {
     
     try {
       await removeAdmin(id);
+      
+      // Update admin list
+      setAdmins(admins.filter(admin => admin.id !== id));
+      
       toast.success(`Admin ${name} removed successfully`);
     } catch (error) {
       console.error('Error removing admin:', error);
+      toast.error('Failed to remove admin');
     }
   };
 
   // Redirect if not admin
   if (currentUser?.role !== 'admin') {
-    return (
-      <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-        <h2 className="text-2xl font-bold text-red-500 mb-4">Access Denied</h2>
-        <p className="text-gray-600">
-          Only administrators can access this page.
-        </p>
-      </div>
-    );
+    return null; // Will redirect from useEffect
   }
 
   return (

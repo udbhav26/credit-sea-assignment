@@ -7,12 +7,16 @@ const Index = () => {
   const navigate = useNavigate();
   const { currentUser, isLoading } = useAuth();
 
-  // Redirect to dashboard
+  // Redirect to dashboard if logged in, or login if not
   useEffect(() => {
     if (!isLoading) {
-      navigate('/');
+      if (currentUser) {
+        navigate('/');
+      } else {
+        navigate('/login');
+      }
     }
-  }, [isLoading, navigate]);
+  }, [isLoading, navigate, currentUser]);
 
   return null;
 };

@@ -1,22 +1,29 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { LoanApplicationForm } from '@/components/loans/LoanApplicationForm';
+import { useNavigate, Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 const LoanApplication = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect to login if not logged in
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/login');
+    }
+  }, [currentUser, navigate]);
+
+  if (!currentUser) {
+    return null; // Will redirect from useEffect
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
-      {currentUser ? (
-        <LoanApplicationForm />
-      ) : (
-        <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-          <h2 className="text-2xl font-bold mb-4">Please Login</h2>
-          <p className="text-gray-600">
-            You need to be logged in to apply for a loan.
-          </p>
-        </div>
-      )}
+      <h1 className="text-2xl font-bold mb-6">Apply for a Loan</h1>
+      <LoanApplicationForm />
     </div>
   );
 };

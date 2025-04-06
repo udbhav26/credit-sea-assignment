@@ -15,6 +15,7 @@ import { StatCard } from '@/components/dashboard/StatCard';
 import { LoanTable } from '@/components/dashboard/LoanTable';
 import { LoanChart } from '@/components/dashboard/LoanChart';
 import { RecoveryRateCard } from '@/components/dashboard/RecoveryRateCard';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -26,12 +27,15 @@ const Dashboard = () => {
     approveLoan 
   } = useLoan();
   const [role, setRole] = useState<string>('user');
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (currentUser) {
       setRole(currentUser.role);
+    } else {
+      navigate('/login');
     }
-  }, [currentUser]);
+  }, [currentUser, navigate]);
   
   // Format numbers with commas
   const formatNumber = (num: number) => {
@@ -41,18 +45,27 @@ const Dashboard = () => {
   const handleVerifyLoan = async (loanId: string, isApproved: boolean) => {
     try {
       await verifyLoan(loanId, isApproved);
+      toast.success(`Loan ${isApproved ? 'verified' : 'rejected'} successfully`);
     } catch (error) {
       console.error('Error verifying loan:', error);
+      toast.error('Failed to process loan verification');
     }
   };
   
   const handleApproveLoan = async (loanId: string, isApproved: boolean) => {
     try {
       await approveLoan(loanId, isApproved);
+      toast.success(`Loan ${isApproved ? 'approved' : 'rejected'} successfully`);
     } catch (error) {
       console.error('Error approving loan:', error);
+      toast.error('Failed to process loan approval');
     }
   };
+
+  // Conditional rendering if user not logged in
+  if (!currentUser) {
+    return null; // Will redirect to login from useEffect
+  }
   
   return (
     <div>
