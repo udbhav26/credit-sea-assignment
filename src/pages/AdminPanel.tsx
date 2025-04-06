@@ -15,8 +15,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -31,27 +32,39 @@ const AdminPanel = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   
-  // In a real app, this would come from API
-  const [admins, setAdmins] = useState([
-    {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@example.com',
-      avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D6832&color=fff',
-    },
-    {
-      id: '4',
-      name: 'Jane Doe',
-      email: 'jane@example.com',
-      avatar: 'https://ui-avatars.com/api/?name=Jane+Doe&background=0D6832&color=fff',
-    },
-    {
-      id: '5',
-      name: 'Mark Smith',
-      email: 'mark@example.com',
-      avatar: 'https://ui-avatars.com/api/?name=Mark+Smith&background=0D6832&color=fff',
-    },
-  ]);
+  // Get admin users from the auth context - in a real app, this would come from API
+  const [admins, setAdmins] = useState<Array<{
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+  }>>([]);
+
+  // Fetch admins on component mount
+  useEffect(() => {
+    // In a real app, this would be an API call
+    // For now, use mock data
+    setAdmins([
+      {
+        id: '1',
+        name: 'Admin User',
+        email: 'admin@example.com',
+        avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D6832&color=fff',
+      },
+      {
+        id: '4',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        avatar: 'https://ui-avatars.com/api/?name=Jane+Doe&background=0D6832&color=fff',
+      },
+      {
+        id: '5',
+        name: 'Mark Smith',
+        email: 'mark@example.com',
+        avatar: 'https://ui-avatars.com/api/?name=Mark+Smith&background=0D6832&color=fff',
+      },
+    ]);
+  }, []);
 
   useEffect(() => {
     // Redirect if not admin
@@ -94,7 +107,6 @@ const AdminPanel = () => {
       toast.success(`Admin ${values.name} added successfully!`);
     } catch (error) {
       console.error('Error adding admin:', error);
-      toast.error('Failed to add admin');
     } finally {
       setIsSubmitting(false);
     }
@@ -120,7 +132,6 @@ const AdminPanel = () => {
       toast.success(`Admin ${name} removed successfully`);
     } catch (error) {
       console.error('Error removing admin:', error);
-      toast.error('Failed to remove admin');
     }
   };
 
@@ -130,111 +141,125 @@ const AdminPanel = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Admin Management</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold flex items-center">
+          <Users className="mr-2" /> Admin Management
+        </h1>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Add Admin Form */}
         <div className="md:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <PlusCircle size={20} className="mr-2" />
-              Add New Admin
-            </h2>
-            
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="admin@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button
-                  type="submit"
-                  className="w-full bg-app-green hover:bg-green-700"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Adding...' : 'Add Admin'}
-                </Button>
-              </form>
-            </Form>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold flex items-center">
+                <PlusCircle size={20} className="mr-2" />
+                Add New Admin
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="admin@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button
+                    type="submit"
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Adding...' : 'Add Admin'}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Admin List */}
         <div className="md:col-span-2">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Current Administrators</h2>
-            
-            <div className="space-y-4">
-              {admins.map((admin) => (
-                <div 
-                  key={admin.id} 
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center">
-                    <img
-                      src={admin.avatar}
-                      alt={admin.name}
-                      className="w-10 h-10 rounded-full mr-3"
-                    />
-                    <div>
-                      <h3 className="font-medium">{admin.name}</h3>
-                      <p className="text-sm text-gray-500">{admin.email}</p>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold">Current Administrators</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {admins.length === 0 ? (
+                  <p className="text-center text-gray-500 py-4">No administrators found</p>
+                ) : (
+                  admins.map((admin) => (
+                    <div 
+                      key={admin.id} 
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center">
+                        <img
+                          src={admin.avatar}
+                          alt={admin.name}
+                          className="w-10 h-10 rounded-full mr-3"
+                        />
+                        <div>
+                          <h3 className="font-medium">{admin.name}</h3>
+                          <p className="text-sm text-gray-500">{admin.email}</p>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="flex items-center"
+                        onClick={() => handleRemoveAdmin(admin.id, admin.name)}
+                        disabled={admin.id === currentUser?.id}
+                      >
+                        <Trash2 size={16} className="mr-1" />
+                        Remove
+                      </Button>
                     </div>
-                  </div>
-                  
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex items-center"
-                    onClick={() => handleRemoveAdmin(admin.id, admin.name)}
-                    disabled={admin.id === currentUser?.id}
-                  >
-                    <Trash2 size={16} className="mr-1" />
-                    Remove
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
