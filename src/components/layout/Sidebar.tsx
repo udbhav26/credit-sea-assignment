@@ -21,6 +21,7 @@ import {
   Calendar,
   Clipboard,
   BadgeDollarSign,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -82,6 +83,12 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       name: "Collateral", 
       icon: <AlignJustify size={20} />,
       roles: ["admin", "verifier"] 
+    },
+    { 
+      path: "/admin", 
+      name: "Admin Management", 
+      icon: <Shield size={20} />,
+      roles: ["admin"] 
     },
     { 
       path: "/access", 
