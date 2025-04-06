@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors for the loan application
+				'app-green': '#0D6832',
+				'app-green-light': '#E5F8ED',
+				'app-yellow': '#FFC107',
+				'app-blue': '#0047CC',
+				'app-red': '#D32F2F',
+				'app-gray': '#F2F2F2',
+				'app-gray-dark': '#333333',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
