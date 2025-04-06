@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLoan } from '@/contexts/LoanContext';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { LoanChart } from '@/components/dashboard/LoanChart';
 import { RecoveryRateCard } from '@/components/dashboard/RecoveryRateCard';
@@ -19,8 +20,12 @@ const loanData = {
   recovery: 85,
 };
 
+// Mock chart data
+const monthlyLoanData = [500, 300, 200, 700, 200, 300, 400, 100, 50, 600, 400, 1000];
+
 const Dashboard = () => {
   const { currentUser } = useAuth();
+  const { loans } = useLoan();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -71,36 +76,45 @@ const Dashboard = () => {
         <StatCard 
           title="Total Loan Amount" 
           value={`₦${loanData.total.toLocaleString()}`}
-          icon={PieChart}
-          color="blue"
+          icon={<PieChart className="h-6 w-6" />}
+          className="bg-blue-100"
         />
         <StatCard 
           title="Approved Loans" 
           value={`₦${loanData.approved.toLocaleString()}`}
-          icon={CheckCircle}
-          color="green"
+          icon={<CheckCircle className="h-6 w-6" />}
+          className="bg-green-100"
         />
         <StatCard 
           title="Rejected Loans" 
           value={`₦${loanData.rejected.toLocaleString()}`}
-          icon={Ban}
-          color="red"
+          icon={<Ban className="h-6 w-6" />}
+          className="bg-red-100"
         />
       </div>
       
       <div className="grid md:grid-cols-3 gap-6">
         <div className="col-span-2">
-          <LoanChart />
+          <LoanChart 
+            title="Monthly Loan Disbursement" 
+            data={monthlyLoanData} 
+            color="#4CAF50" 
+            type="area"
+          />
         </div>
-        <RecoveryRateCard rate={loanData.recovery} />
+        <RecoveryRateCard 
+          title="Recovery Rate" 
+          rate={loanData.recovery} 
+          description="Percentage of loans successfully recovered"
+        />
       </div>
 
       <div>
         <LoanTable 
-          onApprove={handleApprove} 
-          onReject={handleReject} 
-          isLoading={isLoading}
-          userRole={currentUser.role}
+          loans={loans}
+          onVerify={(loanId, isApproved) => handleApprove(loanId)}
+          onApprove={(loanId, isApproved) => handleApprove(loanId)}
+          title="Recent Loans"
         />
       </div>
     </div>

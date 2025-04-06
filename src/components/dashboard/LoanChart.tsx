@@ -39,7 +39,7 @@ export const LoanChart = ({ title, data, color, type, barColor }: ChartProps) =>
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
               <defs>
-                <linearGradient id={`color${color}`} x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id={`color${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={color} stopOpacity={0.8} />
                   <stop offset="95%" stopColor={color} stopOpacity={0.1} />
                 </linearGradient>
@@ -53,7 +53,7 @@ export const LoanChart = ({ title, data, color, type, barColor }: ChartProps) =>
                 dataKey="value"
                 stroke={color}
                 fillOpacity={1}
-                fill={`url(#color${color})`}
+                fill={`url(#color${color.replace('#', '')})`}
               />
             </AreaChart>
           ) : (
