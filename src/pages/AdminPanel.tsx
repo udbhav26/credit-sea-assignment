@@ -32,7 +32,7 @@ const AdminPanel = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   
-  // Get admin users from the auth context - in a real app, this would come from API
+  // Get admin users from the auth context
   const [admins, setAdmins] = useState<Array<{
     id: string;
     name: string;
@@ -40,31 +40,41 @@ const AdminPanel = () => {
     avatar: string;
   }>>([]);
 
-  // Fetch admins on component mount
+  // Fetch all users from your auth context
   useEffect(() => {
-    // In a real app, this would be an API call
-    // For now, use mock data
-    setAdmins([
-      {
-        id: '1',
-        name: 'Admin User',
-        email: 'admin@example.com',
-        avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D6832&color=fff',
-      },
-      {
-        id: '4',
-        name: 'Jane Doe',
-        email: 'jane@example.com',
-        avatar: 'https://ui-avatars.com/api/?name=Jane+Doe&background=0D6832&color=fff',
-      },
-      {
-        id: '5',
-        name: 'Mark Smith',
-        email: 'mark@example.com',
-        avatar: 'https://ui-avatars.com/api/?name=Mark+Smith&background=0D6832&color=fff',
-      },
-    ]);
-  }, []);
+    // For demonstration purposes, we'll use mock data
+    // In a real app, this would come from the API
+    if (currentUser?.role === 'admin') {
+      fetch('/api/admins')
+        .catch(() => {
+          // If API is not available, use these mock admins
+          return {
+            json: () => Promise.resolve([
+              {
+                id: '1',
+                name: 'Admin User',
+                email: 'admin@example.com',
+                avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D6832&color=fff',
+              },
+              {
+                id: '4',
+                name: 'Jane Doe',
+                email: 'jane@example.com',
+                avatar: 'https://ui-avatars.com/api/?name=Jane+Doe&background=0D6832&color=fff',
+              },
+              {
+                id: '5',
+                name: 'Mark Smith',
+                email: 'mark@example.com',
+                avatar: 'https://ui-avatars.com/api/?name=Mark+Smith&background=0D6832&color=fff',
+              },
+            ])
+          };
+        })
+        .then(response => response.json())
+        .then(data => setAdmins(data));
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     // Redirect if not admin
@@ -95,13 +105,16 @@ const AdminPanel = () => {
     try {
       await addAdmin(values.name, values.email, values.password);
       
-      // Update admins list
-      setAdmins([...admins, {
-        id: (admins.length + 1).toString(),
+      // Create a new admin object for the UI
+      const newAdmin = {
+        id: (Date.now().toString()), // Generate a temporary ID
         name: values.name,
         email: values.email,
         avatar: `https://ui-avatars.com/api/?name=${values.name.replace(' ', '+')}&background=0D6832&color=fff`,
-      }]);
+      };
+      
+      // Update admins list
+      setAdmins(prevAdmins => [...prevAdmins, newAdmin]);
       
       form.reset();
       toast.success(`Admin ${values.name} added successfully!`);
@@ -126,8 +139,8 @@ const AdminPanel = () => {
     try {
       await removeAdmin(id);
       
-      // Update admin list
-      setAdmins(admins.filter(admin => admin.id !== id));
+      // Update admin list immediately
+      setAdmins(prevAdmins => prevAdmins.filter(admin => admin.id !== id));
       
       toast.success(`Admin ${name} removed successfully`);
     } catch (error) {

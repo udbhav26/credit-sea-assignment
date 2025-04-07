@@ -20,7 +20,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
-  addAdmin: (name: string, email: string, password: string) => Promise<void>;
+  addAdmin: (name: string, email: string, password: string) => Promise<User>;
   removeAdmin: (id: string) => Promise<void>;
   isLoading: boolean;
 }
@@ -136,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Add admin function (only for admins)
-  const addAdmin = async (name: string, email: string, password: string) => {
+  const addAdmin = async (name: string, email: string, password: string): Promise<User> => {
     setIsLoading(true);
     try {
       // Ensure current user is admin
@@ -154,15 +154,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Create new admin
       const newAdmin: User = {
-        id: (users.length + 1).toString(),
+        id: `admin-${Date.now()}`,
         name,
         email,
         role: 'admin',
         avatar: `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=0D6832&color=fff`,
       };
       
-      setUsers([...users, newAdmin]);
+      // Update users array with the new admin
+      const updatedUsers = [...users, newAdmin];
+      setUsers(updatedUsers);
+      
+      // Store in localStorage to persist the data
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
       toast.success(`Admin ${name} added successfully!`);
+      return newAdmin;
     } catch (error) {
       toast.error((error as Error).message || 'Failed to add admin');
       throw error;
@@ -194,7 +201,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Admin not found');
       }
       
-      setUsers(users.filter(u => u.id !== id));
+      // Update users array without the removed admin
+      const updatedUsers = users.filter(u => u.id !== id);
+      setUsers(updatedUsers);
+      
+      // Store in localStorage to persist the data
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
       toast.success(`Admin ${adminToRemove.name} removed successfully`);
     } catch (error) {
       toast.error((error as Error).message || 'Failed to remove admin');
