@@ -59,7 +59,7 @@ const Dashboard = () => {
   if (!currentUser) return null;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
         {currentUser.role === 'user' && (
@@ -72,28 +72,28 @@ const Dashboard = () => {
         )}
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
         <StatCard 
           title="Total Loan Amount" 
           value={`₦${loanData.total.toLocaleString()}`}
-          icon={<PieChart className="h-6 w-6" />}
+          icon={<PieChart className="h-5 w-5 sm:h-6 sm:w-6" />}
           className="bg-blue-100"
         />
         <StatCard 
           title="Approved Loans" 
           value={`₦${loanData.approved.toLocaleString()}`}
-          icon={<CheckCircle className="h-6 w-6" />}
+          icon={<CheckCircle className="h-5 w-5 sm:h-6 sm:w-6" />}
           className="bg-green-100"
         />
         <StatCard 
           title="Rejected Loans" 
           value={`₦${loanData.rejected.toLocaleString()}`}
-          icon={<Ban className="h-6 w-6" />}
+          icon={<Ban className="h-5 w-5 sm:h-6 sm:w-6" />}
           className="bg-red-100"
         />
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2">
           <LoanChart 
             title="Monthly Loan Disbursement" 

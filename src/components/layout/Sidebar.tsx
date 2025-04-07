@@ -173,7 +173,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         
         {/* User profile */}
         {currentUser && (
-          <div className="px-4 py-3 sm:py-5 flex items-center">
+          <div className="px-4 py-3 sm:py-4 flex items-center">
             <img
               src={currentUser.avatar || `https://ui-avatars.com/api/?name=${currentUser.name.replace(' ', '+')}&background=d4d4d8&color=0D6832`}
               alt={currentUser.name}
@@ -186,14 +186,14 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 py-2 sm:py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-green-700 scrollbar-track-transparent">
+        <nav className="flex-1 py-2 sm:py-4 overflow-y-auto custom-scrollbar">
           <ul className="space-y-1">
             {filteredNavItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-4 py-2 sm:py-3 text-gray-100 hover:bg-green-700 transition-colors text-sm sm:text-base",
+                    "flex items-center px-4 py-2 sm:py-2.5 text-gray-100 hover:bg-green-700 transition-colors text-sm",
                     location.pathname === item.path && "bg-green-700 font-medium"
                   )}
                   onClick={() => {
@@ -213,7 +213,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           <div className="p-4 border-t border-green-700">
             <Button
               variant="ghost"
-              className="w-full flex items-center justify-start text-white hover:bg-green-700 text-sm sm:text-base"
+              className="w-full flex items-center justify-start text-white hover:bg-green-700 text-sm"
               onClick={() => {
                 logout();
                 onClose();

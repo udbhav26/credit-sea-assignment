@@ -27,6 +27,13 @@ export const MainLayout = () => {
     };
   }, []);
 
+  // Close sidebar on route change for mobile
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [navigate]);
+
   // Redirect to login if no user
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -44,21 +51,22 @@ export const MainLayout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
-      <div id="sidebar" className="z-40">
+      {/* Sidebar - fixed on desktop, overlay on mobile */}
+      <div id="sidebar" className="z-50">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
       
       <div className="flex flex-col flex-1 w-full overflow-hidden">
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 sm:p-4">
-          <div className="container mx-auto px-0 sm:px-2 max-w-full">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 sm:p-4 lg:ml-4">
+          <div className="container mx-auto px-0 sm:px-2 max-w-full lg:pr-4">
             <Outlet />
           </div>
         </main>
       </div>
       
-      {/* Overlay for mobile */}
+      {/* Mobile overlay when sidebar is open */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"

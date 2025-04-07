@@ -31,12 +31,12 @@ export const Header = ({ toggleSidebar }: HeaderProps) => {
       
       <div className="flex items-center space-x-2 sm:space-x-4">
         <button className="text-app-green relative p-1" aria-label="Notifications">
-          <Bell size={18} className="sm:size-20" />
+          <Bell size={20} />
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
         
         <button className="text-app-green relative p-1 hidden sm:block" aria-label="Messages">
-          <MessageSquare size={18} className="sm:size-20" />
+          <MessageSquare size={20} />
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
         
