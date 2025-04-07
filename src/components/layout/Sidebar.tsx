@@ -22,6 +22,7 @@ import {
   Clipboard,
   BadgeDollarSign,
   Shield,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -158,30 +159,41 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col overflow-hidden">
+        {/* Close button - Mobile only */}
+        <div className="lg:hidden flex justify-end p-2">
+          <button 
+            onClick={onClose} 
+            className="text-white hover:bg-green-700 p-2 rounded-full"
+            aria-label="Close sidebar"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        
         {/* User profile */}
         {currentUser && (
-          <div className="px-4 py-5 flex items-center">
+          <div className="px-4 py-3 sm:py-5 flex items-center">
             <img
               src={currentUser.avatar || `https://ui-avatars.com/api/?name=${currentUser.name.replace(' ', '+')}&background=d4d4d8&color=0D6832`}
               alt={currentUser.name}
               className="w-10 h-10 rounded-full bg-yellow-400"
             />
             <div className="ml-3 text-white">
-              <p className="font-medium">{currentUser.name}</p>
+              <p className="font-medium text-sm sm:text-base truncate max-w-[160px]">{currentUser.name}</p>
             </div>
           </div>
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 overflow-y-auto">
+        <nav className="flex-1 py-2 sm:py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-green-700 scrollbar-track-transparent">
           <ul className="space-y-1">
             {filteredNavItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-4 py-3 text-gray-100 hover:bg-green-700 transition-colors",
+                    "flex items-center px-4 py-2 sm:py-3 text-gray-100 hover:bg-green-700 transition-colors text-sm sm:text-base",
                     location.pathname === item.path && "bg-green-700 font-medium"
                   )}
                   onClick={() => {
@@ -189,7 +201,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   }}
                 >
                   <span className="mr-3">{item.icon}</span>
-                  <span>{item.name}</span>
+                  <span className="truncate">{item.name}</span>
                 </Link>
               </li>
             ))}
@@ -201,7 +213,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           <div className="p-4 border-t border-green-700">
             <Button
               variant="ghost"
-              className="w-full flex items-center justify-start text-white hover:bg-green-700"
+              className="w-full flex items-center justify-start text-white hover:bg-green-700 text-sm sm:text-base"
               onClick={() => {
                 logout();
                 onClose();

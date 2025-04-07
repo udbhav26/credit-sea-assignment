@@ -43,16 +43,16 @@ export const MainLayout = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <div id="sidebar">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
+      <div id="sidebar" className="z-40">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
       
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 w-full overflow-hidden">
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4">
-          <div className="container mx-auto">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 sm:p-4">
+          <div className="container mx-auto px-0 sm:px-2 max-w-full">
             <Outlet />
           </div>
         </main>
@@ -61,7 +61,7 @@ export const MainLayout = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

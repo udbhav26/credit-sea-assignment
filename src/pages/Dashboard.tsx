@@ -59,20 +59,20 @@ const Dashboard = () => {
   if (!currentUser) return null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
         {currentUser.role === 'user' && (
           <Button 
             onClick={() => navigate('/apply')}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
           >
             Apply for Loan <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>
       
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <StatCard 
           title="Total Loan Amount" 
           value={`₦${loanData.total.toLocaleString()}`}
@@ -93,8 +93,8 @@ const Dashboard = () => {
         />
       </div>
       
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2">
           <LoanChart 
             title="Monthly Loan Disbursement" 
             data={monthlyLoanData} 
@@ -112,8 +112,8 @@ const Dashboard = () => {
       <div>
         <LoanTable 
           loans={loans}
-          onVerify={(loanId, isApproved) => handleApprove(loanId)}
-          onApprove={(loanId, isApproved) => handleApprove(loanId)}
+          onVerify={(loanId) => handleApprove(loanId)}
+          onApprove={(loanId) => handleApprove(loanId)}
           title="Recent Loans"
         />
       </div>

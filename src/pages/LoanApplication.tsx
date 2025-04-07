@@ -21,8 +21,8 @@ const LoanApplication = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Apply for a Loan</h1>
+    <div className="w-full max-w-3xl mx-auto px-4">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Apply for a Loan</h1>
       <LoanApplicationForm />
     </div>
   );
