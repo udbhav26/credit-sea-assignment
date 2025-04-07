@@ -21,7 +21,7 @@ export const Header = ({ toggleSidebar }: HeaderProps) => {
       <div className="flex items-center">
         <button 
           onClick={toggleSidebar}
-          className="text-app-green mr-2 sm:mr-4 lg:hidden"
+          className="text-app-green mr-2 sm:mr-4"
           aria-label="Toggle sidebar"
         >
           <MenuIcon size={24} />

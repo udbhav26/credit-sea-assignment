@@ -10,13 +10,13 @@ export const MainLayout = () => {
   const { currentUser, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Close sidebar when clicking outside on mobile
+  // Close sidebar when clicking outside on all viewport sizes
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const sidebar = document.getElementById('sidebar');
       const target = event.target as Node;
       
-      if (sidebar && !sidebar.contains(target) && window.innerWidth < 1024) {
+      if (sidebar && !sidebar.contains(target)) {
         setSidebarOpen(false);
       }
     };
@@ -27,11 +27,9 @@ export const MainLayout = () => {
     };
   }, []);
 
-  // Close sidebar on route change for mobile
+  // Close sidebar on route change
   useEffect(() => {
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
+    setSidebarOpen(false);
   }, [navigate]);
 
   // Redirect to login if no user
@@ -51,7 +49,7 @@ export const MainLayout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
-      {/* Sidebar - fixed on desktop, overlay on mobile */}
+      {/* Sidebar - hidden by default on all viewport sizes */}
       <div id="sidebar" className="z-50">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
@@ -59,17 +57,17 @@ export const MainLayout = () => {
       <div className="flex flex-col flex-1 w-full overflow-hidden">
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 sm:p-4 lg:ml-4">
-          <div className="container mx-auto px-0 sm:px-2 max-w-full lg:pr-4">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 sm:p-4">
+          <div className="container mx-auto px-0 sm:px-2 max-w-full">
             <Outlet />
           </div>
         </main>
       </div>
       
-      {/* Mobile overlay when sidebar is open */}
+      {/* Overlay when sidebar is open */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
           onClick={() => setSidebarOpen(false)}
         />
       )}

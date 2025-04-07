@@ -18,13 +18,6 @@
   }
 }
 
-/* For better sidebar and main content spacing */
-@media (min-width: 1024px) {
-  .lg-main-content {
-    margin-left: 16rem; /* Width of sidebar */
-  }
-}
-
 /* Logo */
 .logo {
   height: 6em;

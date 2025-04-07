@@ -156,12 +156,12 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     <aside
       className={cn(
         "fixed inset-y-0 left-0 z-50 w-64 bg-app-green transition-transform duration-300 ease-in-out transform",
-        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        isOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
       <div className="h-full flex flex-col overflow-hidden">
-        {/* Close button - Mobile only */}
-        <div className="lg:hidden flex justify-end p-2">
+        {/* Close button - visible on all viewport sizes */}
+        <div className="flex justify-end p-2">
           <button 
             onClick={onClose} 
             className="text-white hover:bg-green-700 p-2 rounded-full"
@@ -173,32 +173,30 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         
         {/* User profile */}
         {currentUser && (
-          <div className="px-4 py-3 sm:py-4 flex items-center">
+          <div className="px-4 py-3 flex items-center">
             <img
               src={currentUser.avatar || `https://ui-avatars.com/api/?name=${currentUser.name.replace(' ', '+')}&background=d4d4d8&color=0D6832`}
               alt={currentUser.name}
               className="w-10 h-10 rounded-full bg-yellow-400"
             />
             <div className="ml-3 text-white">
-              <p className="font-medium text-sm sm:text-base truncate max-w-[160px]">{currentUser.name}</p>
+              <p className="font-medium text-sm truncate max-w-[160px]">{currentUser.name}</p>
             </div>
           </div>
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 py-2 sm:py-4 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 py-2 overflow-y-auto custom-scrollbar">
           <ul className="space-y-1">
             {filteredNavItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-4 py-2 sm:py-2.5 text-gray-100 hover:bg-green-700 transition-colors text-sm",
+                    "flex items-center px-4 py-2 text-gray-100 hover:bg-green-700 transition-colors text-sm",
                     location.pathname === item.path && "bg-green-700 font-medium"
                   )}
-                  onClick={() => {
-                    if (window.innerWidth < 1024) onClose();
-                  }}
+                  onClick={onClose}
                 >
                   <span className="mr-3">{item.icon}</span>
                   <span className="truncate">{item.name}</span>
