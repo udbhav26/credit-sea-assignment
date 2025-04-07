@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, User } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { PlusCircle, Trash2, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -31,48 +32,27 @@ const AdminPanel = () => {
   const { currentUser, addAdmin, removeAdmin } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
-  // Get admin users from the auth context
-  const [admins, setAdmins] = useState<Array<{
-    id: string;
-    name: string;
-    email: string;
-    avatar: string;
-  }>>([]);
+  // State to store admin users
+  const [admins, setAdmins] = useState<User[]>([]);
 
-  // Fetch all users from your auth context
+  // Fetch all admin users
   useEffect(() => {
     // For demonstration purposes, we'll use mock data
-    // In a real app, this would come from the API
     if (currentUser?.role === 'admin') {
-      fetch('/api/admins')
-        .catch(() => {
-          // If API is not available, use these mock admins
-          return {
-            json: () => Promise.resolve([
-              {
-                id: '1',
-                name: 'Admin User',
-                email: 'admin@example.com',
-                avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D6832&color=fff',
-              },
-              {
-                id: '4',
-                name: 'Jane Doe',
-                email: 'jane@example.com',
-                avatar: 'https://ui-avatars.com/api/?name=Jane+Doe&background=0D6832&color=fff',
-              },
-              {
-                id: '5',
-                name: 'Mark Smith',
-                email: 'mark@example.com',
-                avatar: 'https://ui-avatars.com/api/?name=Mark+Smith&background=0D6832&color=fff',
-              },
-            ])
-          };
-        })
-        .then(response => response.json())
-        .then(data => setAdmins(data));
+      // Get all existing users that are admins
+      const storedUsers = localStorage.getItem('users');
+      const parsedUsers = storedUsers ? JSON.parse(storedUsers) : [];
+      
+      // If no stored users, use the currentUser as the only admin
+      if (!parsedUsers.length) {
+        setAdmins(currentUser ? [currentUser] : []);
+      } else {
+        // Filter users with admin role
+        const adminUsers = parsedUsers.filter((user: User) => user.role === 'admin');
+        setAdmins(adminUsers);
+      }
     }
   }, [currentUser]);
 
@@ -103,23 +83,16 @@ const AdminPanel = () => {
     
     setIsSubmitting(true);
     try {
-      await addAdmin(values.name, values.email, values.password);
+      const newAdmin = await addAdmin(values.name, values.email, values.password);
       
-      // Create a new admin object for the UI
-      const newAdmin = {
-        id: (Date.now().toString()), // Generate a temporary ID
-        name: values.name,
-        email: values.email,
-        avatar: `https://ui-avatars.com/api/?name=${values.name.replace(' ', '+')}&background=0D6832&color=fff`,
-      };
-      
-      // Update admins list
-      setAdmins(prevAdmins => [...prevAdmins, newAdmin]);
+      // Add the new admin to our state to update the UI
+      setAdmins((prevAdmins) => [...prevAdmins, newAdmin]);
       
       form.reset();
       toast.success(`Admin ${values.name} added successfully!`);
     } catch (error) {
       console.error('Error adding admin:', error);
+      toast.error((error as Error).message || 'Failed to add admin');
     } finally {
       setIsSubmitting(false);
     }
@@ -145,6 +118,7 @@ const AdminPanel = () => {
       toast.success(`Admin ${name} removed successfully`);
     } catch (error) {
       console.error('Error removing admin:', error);
+      toast.error((error as Error).message || 'Failed to remove admin');
     }
   };
 
@@ -164,7 +138,7 @@ const AdminPanel = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Add Admin Form */}
         <div className="md:col-span-1">
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-xl font-semibold flex items-center">
                 <PlusCircle size={20} className="mr-2" />
@@ -231,7 +205,7 @@ const AdminPanel = () => {
         
         {/* Admin List */}
         <div className="md:col-span-2">
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">Current Administrators</CardTitle>
             </CardHeader>
@@ -243,24 +217,24 @@ const AdminPanel = () => {
                   admins.map((admin) => (
                     <div 
                       key={admin.id} 
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-3"
                     >
-                      <div className="flex items-center">
+                      <div className="flex items-center w-full sm:w-auto">
                         <img
                           src={admin.avatar}
                           alt={admin.name}
                           className="w-10 h-10 rounded-full mr-3"
                         />
-                        <div>
+                        <div className="overflow-hidden">
                           <h3 className="font-medium">{admin.name}</h3>
-                          <p className="text-sm text-gray-500">{admin.email}</p>
+                          <p className="text-sm text-gray-500 truncate">{admin.email}</p>
                         </div>
                       </div>
                       
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="flex items-center"
+                        className="flex items-center w-full sm:w-auto"
                         onClick={() => handleRemoveAdmin(admin.id, admin.name)}
                         disabled={admin.id === currentUser?.id}
                       >

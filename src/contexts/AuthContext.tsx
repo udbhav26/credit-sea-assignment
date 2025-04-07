@@ -56,15 +56,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Auth provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user from localStorage on initial render
+  // Load users and current user from localStorage on initial render
   useEffect(() => {
+    // Load stored users or use mock users if none exist
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers));
+    } else {
+      // Initialize with mock users
+      setUsers(MOCK_USERS);
+      localStorage.setItem('users', JSON.stringify(MOCK_USERS));
+    }
+    
+    // Load current user
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser));
     }
+    
     setIsLoading(false);
   }, []);
 
@@ -116,14 +128,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Create new user
       const newUser: User = {
-        id: (users.length + 1).toString(),
+        id: `user-${Date.now()}`,
         name,
         email,
         role,
-        avatar: `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=0D6832&color=fff`,
+        avatar: `https://ui-avatars.com/api/?name=${name.replace(/\s+/g, '+')}&background=0D6832&color=fff`,
       };
       
-      setUsers([...users, newUser]);
+      // Update users array with the new user
+      const updatedUsers = [...users, newUser];
+      setUsers(updatedUsers);
+      
+      // Store in localStorage to persist the data
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
       setCurrentUser(newUser);
       localStorage.setItem('currentUser', JSON.stringify(newUser));
       toast.success('Registration successful!');
@@ -158,7 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name,
         email,
         role: 'admin',
-        avatar: `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=0D6832&color=fff`,
+        avatar: `https://ui-avatars.com/api/?name=${name.replace(/\s+/g, '+')}&background=0D6832&color=fff`,
       };
       
       // Update users array with the new admin
